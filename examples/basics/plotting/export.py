@@ -15,7 +15,7 @@ fig[0, 0].plot([1, 6, 2, 4, 3, 8, 5, 7, 6, 3])
 # Render the canvas scene to a numpy array image with higher resolution
 # than the original canvas
 scale = 4
-image = fig.render(size=(fig.size[0]*scale, fig.size[1]*scale))
+image = fig.render(size=(fig.size[0]*scale, fig.size[1]*scale), region=(0, 0, fig.size[0], fig.size[1]))
 
 # Display the data in the array, sub-sampled down to the original canvas
 # resolution

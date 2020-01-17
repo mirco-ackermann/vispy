@@ -122,6 +122,7 @@ class SceneCanvas(app.Canvas, Frozen):
         self._update_pending = False
         self._fb_stack = []
         self._vp_stack = []
+        self._ps_stack = []
         self._mouse_handler = None
         self.transforms = TransformSystem(canvas=self)
         self._bgcolor = Color(bgcolor).rgba
@@ -252,11 +253,13 @@ class SceneCanvas(app.Canvas, Frozen):
         fbo = gloo.FrameBuffer(color=gloo.RenderBuffer(size[::-1]),
                                depth=gloo.RenderBuffer(size[::-1]))
 
+        self._ps_stack.append(size)
         self.push_fbo(fbo, offset, csize)
         try:
             self._draw_scene(bgcolor=bgcolor)
             return fbo.read(crop=crop)
         finally:
+            self._ps_stack.pop()
             self.pop_fbo()
 
     def _draw_scene(self, bgcolor=None):
@@ -600,6 +603,13 @@ class SceneCanvas(app.Canvas, Frozen):
         self._update_transforms()
         return fbo
         
+    @property
+    def physical_size(self):
+        if len(self._ps_stack) != 0:
+            return self._ps_stack[-1]
+        else:
+            return app.Canvas.physical_size.fget(self)
+
     def _current_framebuffer(self):
         """ Return (fbo, origin, canvas_size) for the current
         FBO on the stack, or for the canvas if there is no FBO.
